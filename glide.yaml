@@ -10,7 +10,7 @@ import:
   subpackages:
   - proto
 - package: github.com/grpc-ecosystem/go-grpc-middleware
-  version: fa8fef87dcecac0bda02d36abb3c790ab9e0030b
+  version: v1.0.0
   subpackages:
   - logging/logrus
   - tags
@@ -19,7 +19,7 @@ import:
 - package: github.com/sirupsen/logrus
   version: v1.0.5
 - package: google.golang.org/grpc
-  version: v1.11.1
+  version: v1.17.0
   subpackages:
   - codes
   - metadata
@@ -28,6 +28,14 @@ import:
   - reflection
   - reflection/grpc_reflection_v1alpha
   - status
-- package: gopkg.in/mgo.v2
-- package: gopkg.in/yaml.v2
-  version: v2.2.1
+- package: golang.org/x/crypto
+  version: beb2a9779c3b677077c41673505f150149fce895
+- package: golang.org/x/net
+  version: 61147c48b25b599e5b561d2e9c4f3e1ef489ca41
+- package: google.golang.org/genproto
+  version: 51d0944304c3cbce4afe9e5247e21100037bff78
+- package: golang.org/x/text
+  version: 367d765ae293e2b5781a597dd9d433117e82fc51
+- package: github.com/samuel/go-zookeeper
+  version: c4fab1ac1bec58281ad0667dc3f0907a9476ac47
+
