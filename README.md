@@ -7,3 +7,4 @@ openWebSF 是基于grpc和zookeeper的服务框架，主要功能如下：
 
 # 启动
  * -c 参数用于指定配置文件（必须指定配置文件）
+ * server配置文件初始化在config/server/server_config.go中

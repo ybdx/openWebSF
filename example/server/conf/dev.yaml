@@ -1,0 +1,47 @@
+port: 9301
+appName: example
+owner: ybdx
+limitQPS: 0 # QPS上限，大于0时有效
+loglevel: debug  # debug, info, warn, error, fatal, panic。"info" 表示 >= info（即 info/warn/error/fatal/panic） 级别的日志会打印出来
+logLineLevel: panic,fatal,error # 在日志中打印出文件名和行号，**耗时增加约2.7倍**。"panic,error" 表示只有 panic 和 error 日志才打印文件名和行号
+#registry_addr: 127.0.0.1:2181
+registry_addr: 10.2.40.71:2181,10.2.40.93:2181,10.2.40.99:2181 # 注册中心地址，逗号分隔。可为空。
+monitorLog:
+  mysqlThreshold: 0 # 单位ms，大于等于此值会在monitor日志中记录，默认100
+  redisThreshold: 0 # 单位ms，大于等于此值会在monitor日志中记录，默认20
+  httpThreshold: 0  # 单位ms，大于等于此值会在monitor日志中记录，默认100
+#zk:
+#  servers: 10.6.26.183:2181 # servers是逗号分隔的zk服务器地址
+##  pgsql:
+##  - key: pg/location/qa/connection
+##    cluster: ofo_location_master
+##    connTimeout: 11000 # ms，默认30000
+##  - key: pg/location/qa/connection
+##    cluster: ofo_location_slave
+##    connTimeout: 11000 # ms，默认30000
+#  mysql:
+#  - key: mysql_cluster/qa/ofo_base
+#    cluster: ofo_base
+#    master_slave: master,slave
+#    connTimeout: 11000 # ms，默认30000
+#    readTimeout: 12000 # ms，默认30000
+#    writeTimeout: 13000 # ms，默认30000
+#  - key: userindex_cluster/qa/ofo_order
+#    cluster: ofo_order
+#    split: 10
+#    master_slave: master,slave
+#  redis:
+#  - name: passport
+#    key: Dba/redis/prc/test/ofo_passport/connection
+#    isCluster: true # 默认false
+#    connTimeout: 1000 # ms，默认100
+#    readTimeout: 1000 # ms，默认100
+#    writeTimeout: 1000 # ms，默认100
+#  - name: localtest
+#    key: mytest/redis_connection
+#    connTimeout: 1000 # ms，默认100
+#    readTimeout: 1000 # ms，默认100
+#    writeTimeout: 1000 # ms，默认100
+#mongos:
+#  mongocms: mongodb://root:OfO20170221mongo@dds-2ze82501145d53742.mongodb.rds.aliyuncs.com:3717/admin
+## 上面是通用配置，不需要的话可删除，下面是自定义添加的配置

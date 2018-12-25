@@ -20,8 +20,8 @@ type config struct {
 
 // 路径在zk中
 var Default = config{
-	Schema:    "osf",
-	Namespace: "osf",
+	Schema:    "owsf",
+	Namespace: "owsf",
 	Group:     DefaultGroup,
 	Lb:        "",
 }

@@ -8,6 +8,9 @@ import (
 	"time"
 	"github.com/sirupsen/logrus"
 	"fmt"
+	"sync"
+	"openWebSF/registry"
+	"os"
 )
 
 type Balancer uint8
@@ -33,6 +36,11 @@ type ClientConfig struct {
 	Experimental bool              // 是否是采用grpc expreimental相关的接口 false表示不是
 	dialOpts     []grpc.DialOption
 }
+
+var register = struct {
+	sync.RWMutex
+	r *registry.Registry
+}{}
 
 func experimentInit(conf ClientConfig) {
 	switch {
@@ -79,6 +87,20 @@ func NewClient(conf ClientConfig) *grpc.ClientConn {
 
 	if err != nil {
 		logrus.Fatalf("grpc.DialContext failed, service[%s]  error:%s", conf.Service, err)
+	}
+	if conf.Service != "" {
+		if nil == register.r {
+			register.Lock()
+			if r := registry.Register(conf.Registry); r == nil {
+				logrus.Fatalf("client create registry connection failed")
+			} else {
+				register.r = r
+			}
+			register.Unlock()
+		}
+		if err := register.r.RegisterClient(conf.Service, os.Getegid()); err != nil {
+			logrus.Warnf("register client to registration center failed. %s", err)
+		}
 	}
 	return conn
 }

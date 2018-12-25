@@ -50,6 +50,14 @@ func initClient(servers string) (*Client, error) {
 	}, nil
 }
 
+func GetStore(servers string) (store.Store, error) {
+	if client, err := initClient(servers); err != nil {
+		return nil, err
+	} else {
+		return client.store, nil
+	}
+}
+
 func (c *Client) Get(key string) (*store.KVPair, error) {
 	return c.store.Get(key)
 }
