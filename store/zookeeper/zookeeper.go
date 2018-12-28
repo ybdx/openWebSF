@@ -238,7 +238,7 @@ func (s *Zookeeper) WatchTree(directory string, stopCh <-chan struct{}) (<-chan 
 	watchCh := make(chan []*store.KVPair)
 	go func() {
 		defer close(watchCh)
-		time.Sleep(time.Second * 30)
+
 		// List returns the children values to the channel
 		// prior to listening to any events that may occur
 		// on those keys

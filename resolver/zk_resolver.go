@@ -8,7 +8,6 @@ import (
 	"time"
 	"net/url"
 	"openWebSF/utils/zk"
-	"fmt"
 )
 
 const scheme = "zookeeper"
@@ -79,7 +78,6 @@ func (r *zookeeperResolver) watch() {
 				Type: resolver.Backend,
 			})
 		}
-		fmt.Println(addrs)
 		r.cc.NewAddress(addrs)
 	}
 	stopCh := make(chan struct{})
@@ -88,7 +86,6 @@ func (r *zookeeperResolver) watch() {
 		return
 	} else {
 		addrs := getUpdates(event)
-		fmt.Println(addrs)
 		r.cc.NewAddress(addrs)
 	}
 

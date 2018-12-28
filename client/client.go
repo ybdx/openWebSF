@@ -7,10 +7,11 @@ import (
 	"context"
 	"time"
 	"github.com/sirupsen/logrus"
-	"fmt"
 	"sync"
 	"openWebSF/registry"
 	"os"
+	"google.golang.org/grpc/naming"
+	"openWebSF/balancer/random"
 )
 
 type Balancer uint8
@@ -42,7 +43,7 @@ var register = struct {
 	r *registry.Registry
 }{}
 
-func experimentInit(conf ClientConfig) {
+func experimentInit(conf ClientConfig) string {
 	switch {
 	case conf.Service != "":
 		resolver.Init(conf.Service)
@@ -53,36 +54,68 @@ func experimentInit(conf ClientConfig) {
 	default:
 		logrus.Fatalln("NewClient() parameter invalid, must set ClientConfig.Server or ClientConfig.DirectIP")
 	}
-	fmt.Println(conf.Balancer)
 
+	var name string
 	switch conf.Balancer {
 	case WRoundRobinExperimental:
+		name = roundrobin.Init(true)
 	case RoundRobinExperimental:
-		roundrobin.Init(false)
+		name = roundrobin.Init(false)
 	case RandomExperimental:
+		name = random.Init(false)
 	case WRandomExperimental:
+		name = random.Init(true)
+	default:
+		logrus.Fatalln("NewClient() parameter invalid, unsupported balancer type")
+	}
+	return name
+}
+
+
+func originInit(conf ClientConfig) (grpc.Balancer, error) {
+	var r naming.Resolver
+	switch {
+	case conf.Service != "":
+		r = resolver.ZookeeperResolve(conf.Service)
+		if conf.Registry == "" {
+			logrus.Fatalln("NewClient must have specify ClientConfig.Registry")
+		}
+	default:
+		logrus.Fatalln("NewClient() parameter invalid, must set ClientConfig.Server or ClientConfig.DirectIP")
+	}
+
+	var b grpc.Balancer
+	switch conf.Balancer {
+	case RoundRobin:
+		b = roundrobin.RoundRobin(r, false)
+	case WRoundRobin:
+		b = roundrobin.RoundRobin(r, true)
+	case Random:
+		b = random.Random(r, false)
+	case WRandom:
+		b = random.Random(r, true)
 	default:
 		logrus.Fatalln("NewClient() parameter invalid, unsupported balancer type")
 	}
 
-}
-
-// todo
-func originInit(conf ClientConfig) (grpc.Balancer, error) {
-	return nil, nil
+	return b, nil
 }
 
 func NewClient(conf ClientConfig) *grpc.ClientConn {
-	if conf.Experimental {
-		experimentInit(conf)
-	} else {
-		originInit(conf)
-	}
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+
 	conf.dialOpts = []grpc.DialOption{
 		grpc.WithInsecure(),
-		grpc.WithBalancerName(roundrobin.Name),
 	}
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+
+	if conf.Experimental {
+		name := experimentInit(conf)
+		conf.dialOpts = append(conf.dialOpts, grpc.WithBalancerName(name))
+	} else {
+		b, _ := originInit(conf)
+		conf.dialOpts = append(conf.dialOpts, grpc.WithBalancer(b))
+	}
+
 	conn, err := grpc.DialContext(ctx, conf.Registry, conf.dialOpts...)
 
 	if err != nil {

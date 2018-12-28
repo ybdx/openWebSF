@@ -65,6 +65,16 @@ func (s *server) Register(service ServiceConfig) *server {
 	if !service.NoRegistration && s.register == nil {
 		logrus.Fatalln("want register service to registration center, must specify the address in config file")
 	}
+	service.metaInner = config.DefaultMetaDataInner
+	service.metaInner.Owner = serverConf.Conf.Owner
+	if weight := os.Getenv(config.EnvServerWeight); weight != "" {
+		w, err := strconv.Atoi(weight)
+		if err != nil || w <= 0 {
+			logrus.Warnf("SERVER_WEIGHT[%s] invalid, use default weight", weight)
+		} else {
+			service.metaInner.Weight = w
+		}
+	}
 	s.services[service.Name] = service
 	return s
 }

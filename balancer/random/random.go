@@ -1,4 +1,4 @@
-package roundrobin
+package random
 
 import (
 	"google.golang.org/grpc/balancer"
@@ -8,9 +8,11 @@ import (
 	"sync"
 	"context"
 	ub "openWebSF/balancer"
+	"math/rand"
+	"time"
 )
 
-const Name = "roundrobin_new"
+const Name = "random"
 
 func newBuilder(flag bool) balancer.Builder {
 	return base.NewBalancerBuilderWithConfig(Name, &rrPickerBuilder{weight: flag}, base.Config{HealthCheck: true})
@@ -48,7 +50,6 @@ type rrPicker struct {
 
 	weight bool
 	mu   sync.Mutex
-	next int
 }
 
 func (p *rrPicker) Pick(ctx context.Context, opts balancer.PickOptions) (balancer.SubConn, func(balancer.DoneInfo), error) {
@@ -66,9 +67,9 @@ func (p *rrPicker) Pick(ctx context.Context, opts balancer.PickOptions) (balance
 	}
 
 	// 不基于权重
+	rand := rand.New(rand.NewSource(time.Now().UnixNano()))
 	p.mu.Lock()
-	sc := p.subConns[p.next]
-	p.next = (p.next + 1) % len(p.subConns)
+	sc := p.subConns[rand.Intn(len(p.subConns))]
 	p.mu.Unlock()
 	return sc, nil, nil
 }
@@ -80,13 +81,17 @@ func (p *rrPicker) selectOneAddr(addrInfo []*ub.AddrInfoNew) balancer.SubConn {
 
 	var selected *ub.AddrInfoNew
 	total := 0
-	for _, info := range addrInfo {
-		info.CurrentWeight += info.Weight
-		total += info.EffectiveWeight
-		if selected == nil || selected.CurrentWeight < info.CurrentWeight {
-			selected = info
+	rand := rand.New(rand.NewSource(time.Now().UnixNano()))
+	for _, v := range addrInfo {
+		total += v.Weight
+	}
+	n := rand.Intn(total)
+	sum := 0
+	for _, v := range addrInfo {
+		sum += v.Weight
+		if n < sum {
+			selected = v
 		}
 	}
-	selected.CurrentWeight -= total
 	return selected.SubConn
 }
