@@ -21,6 +21,8 @@ const MetaLang = "go"
 const MetaActiveOnline = 0
 const MetaActiveOffline = 1
 
+const TraceIdKey = "trace_id"
+
 type MetaData struct {
 	Owner string
 }

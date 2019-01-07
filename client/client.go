@@ -12,6 +12,9 @@ import (
 	"os"
 	"google.golang.org/grpc/naming"
 	"openWebSF/balancer/random"
+	"openWebSF/interceptor/pass_metadata"
+	"openWebSF/config"
+	"github.com/grpc-ecosystem/go-grpc-middleware"
 )
 
 type Balancer uint8
@@ -36,6 +39,8 @@ type ClientConfig struct {
 	Balancer     Balancer          // 负载均衡器，不设置则使用默认的,默认值为WRoundRobin, 使用expreimental相关的接口的时候必须设置
 	Experimental bool              // 是否是采用grpc expreimental相关的接口 false表示不是
 	dialOpts     []grpc.DialOption
+	StreamInt    grpc.StreamClientInterceptor // 设置interceptor
+	UnaryInt     grpc.UnaryClientInterceptor
 }
 
 var register = struct {
@@ -70,7 +75,6 @@ func experimentInit(conf ClientConfig) string {
 	}
 	return name
 }
-
 
 func originInit(conf ClientConfig) (grpc.Balancer, error) {
 	var r naming.Resolver
@@ -116,6 +120,11 @@ func NewClient(conf ClientConfig) *grpc.ClientConn {
 		conf.dialOpts = append(conf.dialOpts, grpc.WithBalancer(b))
 	}
 
+	conf.passTraceId()
+
+	// after all interceptor is set, then use this function
+	conf.addInterceptorBeforeDial()
+
 	conn, err := grpc.DialContext(ctx, conf.Registry, conf.dialOpts...)
 
 	if err != nil {
@@ -136,4 +145,41 @@ func NewClient(conf ClientConfig) *grpc.ClientConn {
 		}
 	}
 	return conn
+}
+
+// pass traceId
+func (c *ClientConfig) passTraceId() {
+	c.AddStreamInterceptor(pass_metadata.StreamPass(config.TraceIdKey))
+	c.AddUnaryInterceptor(pass_metadata.UnaryPass(config.TraceIdKey))
+}
+
+func (c *ClientConfig) addInterceptorBeforeDial() {
+	if c.UnaryInt != nil {
+		c.dialOpts = append(c.dialOpts, grpc.WithUnaryInterceptor(c.UnaryInt))
+	}
+	if c.StreamInt != nil {
+		c.dialOpts = append(c.dialOpts, grpc.WithStreamInterceptor(c.StreamInt))
+	}
+}
+
+// add stream interceptor
+func (c *ClientConfig) AddStreamInterceptor(interceptor ...grpc.StreamClientInterceptor) *ClientConfig {
+	interceptors := make([]grpc.StreamClientInterceptor, 0)
+	if c.StreamInt != nil {
+		interceptors = append(interceptors, c.StreamInt)
+	}
+	interceptors = append(interceptors, interceptor...)
+	c.StreamInt = grpc_middleware.ChainStreamClient(interceptors...)
+	return c
+}
+
+// add unary interceptor
+func (c *ClientConfig)  AddUnaryInterceptor(interceptor ...grpc.UnaryClientInterceptor) *ClientConfig {
+	interceptors := make([]grpc.UnaryClientInterceptor, 0)
+	if c.UnaryInt != nil {
+		interceptors = append(interceptors, c.UnaryInt)
+	}
+	interceptors = append(interceptors, interceptor...)
+	c.UnaryInt = grpc_middleware.ChainUnaryClient(interceptors...)
+	return c
 }

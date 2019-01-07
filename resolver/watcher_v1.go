@@ -30,7 +30,7 @@ func (w *watcher) Next() ([]*naming.Update, error) {
 		prefix := utils.ServicePrefix(w.zkResolver.name)
 		pairs, err := w.zkClient.List(prefix)
 		if err == store.ErrKeyNotFound {
-			logrus.Errorf("watcher list %s failed, error: %v====\n", prefix, err)
+			logrus.Errorf("watcher list %s failed, error: %v\n", prefix, err)
 			time.Sleep(3 * time.Second)
 			return nil, nil
 		} else if nil != err {

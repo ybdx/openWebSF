@@ -7,6 +7,7 @@ import (
 	"context"
 	"openWebSF/example/pb"
 	"openWebSF/client"
+	"google.golang.org/grpc/metadata"
 )
 
 var (
@@ -24,6 +25,7 @@ func main() {
 		simpleClient()
 	}
 }
+
 func simpleClient() {
 	conn := client.NewClient(client.ClientConfig{
 		Service:"wosf.hello.v1.helloService",
@@ -34,8 +36,13 @@ func simpleClient() {
 	clientU := pb.NewHelloServiceClient(conn)
 
 	ticker := time.NewTicker(1000 * time.Millisecond)
+	md := make(map[string]string)
+	md["trace"] = "ybdx"
+
+
 	for t := range ticker.C {
-		resp, err := clientU.HelloWorld(context.Background(), &pb.HelloRequest{Name: "ybdx vs you"})
+		resp, err := clientU.HelloWorld(metadata.NewIncomingContext(context.Background(),metadata.Pairs("trace_id", "ybdx", "trace_id", "test")),
+			&pb.HelloRequest{Name: "ybdx vs you"})
 		if err == nil {
 			fmt.Printf("%v: Reply is %s\n", t, resp.Name)
 		} else {
