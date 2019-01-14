@@ -1,9 +1,9 @@
 package config
 
 import (
-	"os"
-	"net"
 	"github.com/sirupsen/logrus"
+	"net"
+	"os"
 )
 
 const nodeClusterKey = "NODE_CLUSTER"

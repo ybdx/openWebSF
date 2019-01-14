@@ -10,7 +10,7 @@ const (
 	Client = "c"
 )
 
-const EnvServerWeight = "SERVER_WEIGHT"    // 指定 server 权重
+const EnvServerWeight = "SERVER_WEIGHT" // 指定 server 权重
 
 const (
 	Modify naming.Operation = 0xFF //扩展naming.Operation

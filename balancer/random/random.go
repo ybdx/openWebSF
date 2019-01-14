@@ -1,14 +1,14 @@
 package random
 
 import (
+	"context"
 	"google.golang.org/grpc/balancer"
 	"google.golang.org/grpc/balancer/base"
-	"google.golang.org/grpc/resolver"
 	"google.golang.org/grpc/grpclog"
-	"sync"
-	"context"
-	ub "openWebSF/balancer"
+	"google.golang.org/grpc/resolver"
 	"math/rand"
+	ub "openWebSF/balancer"
+	"sync"
 	"time"
 )
 
@@ -24,7 +24,7 @@ func Init(flag bool) string {
 }
 
 type rrPickerBuilder struct {
-	r resolver.Resolver
+	r      resolver.Resolver
 	weight bool // 是否采用权重进行负载均衡
 }
 
@@ -37,7 +37,7 @@ func (rr *rrPickerBuilder) Build(readySCs map[resolver.Address]balancer.SubConn)
 	return &rrPicker{
 		subConns: scs,
 		readySCs: readySCs,
-		weight: rr.weight,
+		weight:   rr.weight,
 	}
 }
 
@@ -49,7 +49,7 @@ type rrPicker struct {
 	readySCs map[resolver.Address]balancer.SubConn
 
 	weight bool
-	mu   sync.Mutex
+	mu     sync.Mutex
 }
 
 func (p *rrPicker) Pick(ctx context.Context, opts balancer.PickOptions) (balancer.SubConn, func(balancer.DoneInfo), error) {

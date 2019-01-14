@@ -2,7 +2,7 @@ package server
 
 import (
 	"google.golang.org/grpc"
-	"openWebSF/config/server"
+	"openWebSF/config/serverConf"
 	"openWebSF/registry"
 	"github.com/sirupsen/logrus"
 

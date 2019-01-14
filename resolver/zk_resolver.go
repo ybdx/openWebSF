@@ -1,13 +1,13 @@
 package resolver
 
 import (
-	"google.golang.org/grpc/resolver"
 	"github.com/docker/libkv/store"
 	"github.com/sirupsen/logrus"
-	"openWebSF/utils"
-	"time"
+	"google.golang.org/grpc/resolver"
 	"net/url"
+	"openWebSF/utils"
 	"openWebSF/utils/zk"
+	"time"
 )
 
 const scheme = "zookeeper"
@@ -18,12 +18,12 @@ type zookeeperBuilder struct {
 
 func (zkb *zookeeperBuilder) Build(target resolver.Target, cc resolver.ClientConn, opts resolver.BuildOption) (resolver.Resolver, error) {
 	r := &zookeeperResolver{
-		target: target,
-		cc: cc,
+		target:      target,
+		cc:          cc,
 		serviceName: zkb.name,
 	}
 	if nil == r.zk {
-		if cli, err:= zk.New(target.Endpoint); err != nil {
+		if cli, err := zk.New(target.Endpoint); err != nil {
 			logrus.Fatalln("libkv NewStore failed:", err)
 			return nil, err
 		} else {
@@ -39,7 +39,7 @@ func (zkb *zookeeperBuilder) Scheme() string {
 	return scheme
 }
 
-type zookeeperResolver struct{
+type zookeeperResolver struct {
 	target      resolver.Target
 	cc          resolver.ClientConn
 	serviceName string
@@ -73,9 +73,9 @@ func (r *zookeeperResolver) watch() {
 				continue
 			}
 			addrs = append(addrs, resolver.Address{
-				Addr: addr,
+				Addr:     addr,
 				Metadata: metadata,
-				Type: resolver.Backend,
+				Type:     resolver.Backend,
 			})
 		}
 		r.cc.NewAddress(addrs)
@@ -93,16 +93,16 @@ func (r *zookeeperResolver) watch() {
 
 func getUpdates(kv <-chan []*store.KVPair) []resolver.Address {
 	select {
-	case pairs := <- kv:
+	case pairs := <-kv:
 		updates := make([]resolver.Address, 0)
 		for _, pair := range pairs {
 			addr, metadata, err := getServerInfo(pair)
 			if err != nil {
 				continue
 			}
-			updates = append(updates ,resolver.Address{
-				Addr: addr,
-				Type: resolver.Backend,
+			updates = append(updates, resolver.Address{
+				Addr:     addr,
+				Type:     resolver.Backend,
 				Metadata: metadata,
 			})
 		}

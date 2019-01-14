@@ -2,17 +2,17 @@
 package roundrobin
 
 import (
-	"google.golang.org/grpc/naming"
-	"sync"
-	"google.golang.org/grpc/grpclog"
-	"google.golang.org/grpc/status"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc"
-	"errors"
 	"context"
-	"openWebSF/config"
-	"openWebSF/balancer"
+	"errors"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/grpclog"
+	"google.golang.org/grpc/naming"
+	"google.golang.org/grpc/status"
+	"openWebSF/balancer"
+	"openWebSF/config"
+	"sync"
 )
 
 func RoundRobin(r naming.Resolver, flag bool) grpc.Balancer {

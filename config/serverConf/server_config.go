@@ -2,10 +2,10 @@ package serverConf
 
 import (
 	"flag"
-	"os"
 	"github.com/sirupsen/logrus"
-	"io/ioutil"
 	"gopkg.in/yaml.v2"
+	"io/ioutil"
+	"os"
 )
 
 var Conf ConfType
@@ -15,8 +15,8 @@ type ConfType struct {
 	LimitQPS     int    `yaml:"limitQPS"`
 	RegisterAddr string `yaml:"registry_addr"`
 	Port         int    `yaml:"port"`
-	Zk            zkConfig
-	Owner         string
+	Zk           zkConfig
+	Owner        string
 }
 
 type zkConfig struct {

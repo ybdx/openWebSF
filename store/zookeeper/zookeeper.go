@@ -1,12 +1,12 @@
 package zookeeper
 
 import (
-	"time"
-	"github.com/samuel/go-zookeeper/zk"
-	"github.com/docker/libkv/store"
-	"github.com/docker/libkv"
-	"strings"
 	"fmt"
+	"github.com/docker/libkv"
+	"github.com/docker/libkv/store"
+	"github.com/samuel/go-zookeeper/zk"
+	"strings"
+	"time"
 )
 
 const (
@@ -456,4 +456,3 @@ func (s *Zookeeper) normalize(key string) string {
 	key = store.Normalize(key)
 	return strings.TrimSuffix(key, "/")
 }
-

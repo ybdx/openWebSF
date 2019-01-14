@@ -1,11 +1,11 @@
 package monitor
 
 import (
-	"time"
-	"net"
+	"context"
 	"encoding/json"
 	"fmt"
-	"context"
+	"net"
+	"time"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/peer"

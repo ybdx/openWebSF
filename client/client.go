@@ -1,22 +1,22 @@
 package client
 
 import (
-	"google.golang.org/grpc"
-	"openWebSF/balancer/roundrobin"
-	"openWebSF/resolver"
 	"context"
-	"time"
+	"github.com/grpc-ecosystem/go-grpc-middleware"
 	"github.com/sirupsen/logrus"
-	"sync"
-	"openWebSF/registry"
-	"os"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/naming"
 	"openWebSF/balancer/random"
+	"openWebSF/balancer/roundrobin"
+	"openWebSF/config"
+	"openWebSF/interceptor/monitor"
 	"openWebSF/interceptor/pass_metadata"
 	client_timeout "openWebSF/interceptor/timeout"
-	"openWebSF/config"
-	"github.com/grpc-ecosystem/go-grpc-middleware"
-	"openWebSF/interceptor/monitor"
+	"openWebSF/registry"
+	"openWebSF/resolver"
+	"os"
+	"sync"
+	"time"
 )
 
 type Balancer uint8
@@ -35,20 +35,20 @@ const (
 )
 
 const (
-	DefaultReqTimeout = 6000
+	DefaultReqTimeout       = 6000
 	DefaultMonitorThreshold = 10
 )
 
 type ClientConfig struct {
-	Service      string            // 服务名， 不为空的时候通过服务名发现服务
-	Registry     string            // zk或其它注册中心地址，使用直连方式时此字段为空
-	DirectAddr   map[string]string // Service字段为空时需要设置直接的地址
-	Balancer     Balancer          // 负载均衡器，不设置则使用默认的,默认值为WRoundRobin, 使用expreimental相关的接口的时候必须设置
-	Experimental bool              // 是否是采用grpc expreimental相关的接口 false表示不是
-	dialOpts     []grpc.DialOption
-	StreamInt    grpc.StreamClientInterceptor // 设置interceptor
-	UnaryInt     grpc.UnaryClientInterceptor
-	ReqTimeout       int               // 请求超时，单位 ms，默认 6000 ms
+	Service          string            // 服务名， 不为空的时候通过服务名发现服务
+	Registry         string            // zk或其它注册中心地址，使用直连方式时此字段为空
+	DirectAddr       map[string]string // Service字段为空时需要设置直接的地址
+	Balancer         Balancer          // 负载均衡器，不设置则使用默认的,默认值为WRoundRobin, 使用expreimental相关的接口的时候必须设置
+	Experimental     bool              // 是否是采用grpc expreimental相关的接口 false表示不是
+	dialOpts         []grpc.DialOption
+	StreamInt        grpc.StreamClientInterceptor // 设置interceptor
+	UnaryInt         grpc.UnaryClientInterceptor
+	ReqTimeout       int // 请求超时，单位 ms，默认 6000 ms
 	MonitorThreshold int // 打印 monitor 日志的阈值，单位 ms，默认 10 ms
 }
 
@@ -204,7 +204,7 @@ func (c *ClientConfig) AddStreamInterceptor(interceptor ...grpc.StreamClientInte
 }
 
 // add unary interceptor
-func (c *ClientConfig)  AddUnaryInterceptor(interceptor ...grpc.UnaryClientInterceptor) *ClientConfig {
+func (c *ClientConfig) AddUnaryInterceptor(interceptor ...grpc.UnaryClientInterceptor) *ClientConfig {
 	interceptors := make([]grpc.UnaryClientInterceptor, 0)
 	if c.UnaryInt != nil {
 		interceptors = append(interceptors, c.UnaryInt)

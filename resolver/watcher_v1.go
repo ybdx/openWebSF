@@ -1,13 +1,13 @@
 package resolver
 
 import (
-	"openWebSF/utils/zk"
-	"google.golang.org/grpc/naming"
-	"openWebSF/utils"
 	"github.com/docker/libkv/store"
 	"github.com/sirupsen/logrus"
-	"time"
+	"google.golang.org/grpc/naming"
 	"openWebSF/config"
+	"openWebSF/utils"
+	"openWebSF/utils/zk"
+	"time"
 )
 
 type watcher struct {

@@ -1,8 +1,8 @@
 package utils
 
 import (
-	"openWebSF/config"
 	"fmt"
+	"openWebSF/config"
 )
 
 func ServicePrefix(name string, groups ...string) string {

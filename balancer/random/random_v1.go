@@ -1,17 +1,17 @@
 package random
 
 import (
+	"context"
+	"errors"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/naming"
-	"math/rand"
-	"time"
-	"sync"
-	"errors"
 	"log"
-	"github.com/sirupsen/logrus"
+	"math/rand"
 	"openWebSF/balancer"
 	"openWebSF/config"
-	"context"
+	"sync"
+	"time"
 )
 
 // Random create a random balancer, if weight is true the balancer will
@@ -29,11 +29,11 @@ type random struct {
 	rand   *rand.Rand
 	r      naming.Resolver
 	w      naming.Watcher
-	addrs  []*balancer.AddrInfo         // all the addresses the client should potentially connect
-	addrCh chan []grpc.Address // the channel to notify gRPC internals the list of addresses the client should connect to.
-	waitCh chan struct{}       // the channel to block when there is no connected address available
-	done   bool                // The Balancer is closed.
-	weight bool                // 是否按照权重做负载均衡
+	addrs  []*balancer.AddrInfo // all the addresses the client should potentially connect
+	addrCh chan []grpc.Address  // the channel to notify gRPC internals the list of addresses the client should connect to.
+	waitCh chan struct{}        // the channel to block when there is no connected address available
+	done   bool                 // The Balancer is closed.
+	weight bool                 // 是否按照权重做负载均衡
 }
 
 func (b *random) Start(target string, config grpc.BalancerConfig) error {
@@ -137,7 +137,7 @@ func (b *random) Get(ctx context.Context, opts grpc.BalancerGetOptions) (addr gr
 			}
 
 			if len(b.addrs) > 0 {
-				addrs :=balancer.GetAvailableAddrs(b.addrs, b.weight, true)
+				addrs := balancer.GetAvailableAddrs(b.addrs, b.weight, true)
 				if len(addrs) > 0 {
 					addr = b.selectOneAddr(addrs)
 					b.Unlock()
@@ -198,7 +198,7 @@ func (b *random) watchAddrUpdates() error {
 			}
 			b.addrs = append(b.addrs, &balancer.AddrInfo{
 				Addr:   addr,
-				Weight:  balancer.GetWeightByMetadata(addr.Metadata),
+				Weight: balancer.GetWeightByMetadata(addr.Metadata),
 			})
 		case config.Modify:
 			// 现在只会修改weight值，所以不根据权重做负载均衡时直接continue
@@ -257,4 +257,3 @@ func (b *random) selectOneAddr(addrs []*balancer.AddrInfo) grpc.Address {
 	}
 	return addrs[b.rand.Intn(len(addrs))].Addr
 }
-

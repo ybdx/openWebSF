@@ -1,13 +1,13 @@
 package zk
 
 import (
-	"sync"
-	"github.com/docker/libkv/store"
-	"openWebSF/store/zookeeper"
 	"errors"
-	"github.com/sirupsen/logrus"
-	"strings"
 	"github.com/docker/libkv"
+	"github.com/docker/libkv/store"
+	"github.com/sirupsen/logrus"
+	"openWebSF/store/zookeeper"
+	"strings"
+	"sync"
 )
 
 var registerZkOnce = sync.Once{}
@@ -18,7 +18,6 @@ type Client struct {
 	keyMap  map[string]*ZkKeyValue
 	kvNames []string
 }
-
 
 func New(servers string) (*Client, error) {
 	return initClient(servers)
@@ -43,9 +42,9 @@ func initClient(servers string) (*Client, error) {
 		return nil, err
 	}
 	return &Client{
-		store: storeZk,
-		addrs: serverList,
-		keyMap: make(map[string]*ZkKeyValue),
+		store:   storeZk,
+		addrs:   serverList,
+		keyMap:  make(map[string]*ZkKeyValue),
 		kvNames: make([]string, 0, 3),
 	}, nil
 }
@@ -74,7 +73,7 @@ func (c *Client) List(key string) ([]*store.KVPair, error) {
 	return c.store.List(key)
 }
 
-func (c *Client) Watch(key string, stopCh <- chan struct{}) (<- chan *store.KVPair, error) {
+func (c *Client) Watch(key string, stopCh <-chan struct{}) (<-chan *store.KVPair, error) {
 	return c.store.Watch(key, stopCh)
 }
 

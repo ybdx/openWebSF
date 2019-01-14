@@ -1,8 +1,8 @@
 package timeout
 
 import (
-	"time"
 	"context"
+	"time"
 
 	"google.golang.org/grpc"
 )

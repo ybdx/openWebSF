@@ -1,9 +1,9 @@
 package resolver
 
 import (
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/naming"
 	"openWebSF/utils/zk"
-	"github.com/sirupsen/logrus"
 )
 
 type zookeeper struct {
@@ -17,7 +17,7 @@ func ZookeeperResolve(name string) *zookeeper {
 }
 
 func (r *zookeeper) Resolve(target string) (naming.Watcher, error) {
-	cli, err:= zk.New(target)
+	cli, err := zk.New(target)
 	if err != nil {
 		logrus.Fatalln("connected to zk failed!")
 		return nil, err

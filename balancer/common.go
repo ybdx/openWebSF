@@ -1,14 +1,14 @@
 package balancer
 
 import (
-	"strings"
-	"strconv"
 	"github.com/sirupsen/logrus"
+	"strconv"
+	"strings"
 
-	"openWebSF/config"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/balancer"
 	"google.golang.org/grpc/resolver"
+	"openWebSF/config"
 )
 
 type AddrInfo struct {
@@ -20,13 +20,12 @@ type AddrInfo struct {
 }
 
 type AddrInfoNew struct {
-	Addr string
-	SubConn balancer.SubConn
+	Addr            string
+	SubConn         balancer.SubConn
 	Weight          int
 	CurrentWeight   int
 	EffectiveWeight int
 }
-
 
 func GetWeightByMetadata(meta interface{}) int {
 	if metaStr, ok := meta.(string); ok {
@@ -66,15 +65,15 @@ func GetAvailableAddrs(all []*AddrInfo, weight bool, connected bool) []*AddrInfo
 	return addrs
 }
 
-func TransformReadySCs (readySCs map[resolver.Address]balancer.SubConn) []*AddrInfoNew {
+func TransformReadySCs(readySCs map[resolver.Address]balancer.SubConn) []*AddrInfoNew {
 	addrInfo := make([]*AddrInfoNew, 0)
 	for k, v := range readySCs {
 		weight := GetWeightByMetadata(k.Metadata)
 		info := &AddrInfoNew{
-			Addr: k.Addr,
-			Weight: weight,
+			Addr:            k.Addr,
+			Weight:          weight,
 			EffectiveWeight: weight,
-			SubConn: v,
+			SubConn:         v,
 		}
 		addrInfo = append(addrInfo, info)
 	}

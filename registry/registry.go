@@ -1,15 +1,15 @@
 package registry
 
 import (
-	"sync"
+	"fmt"
 	"github.com/docker/libkv/store"
 	"github.com/sirupsen/logrus"
-	"openWebSF/utils/zk"
-	"strings"
 	"openWebSF/config"
 	"openWebSF/utils"
+	"openWebSF/utils/zk"
+	"strings"
+	"sync"
 	"time"
-	"fmt"
 )
 
 type Registry struct {
@@ -52,7 +52,6 @@ func (r *Registry) UnRegisterClient(serviceName string) error {
 	key := utils.ClientKey(serviceName)
 	return r.unregister(key)
 }
-
 
 func (r *Registry) register(key string, value []byte) error {
 	r.Lock()
