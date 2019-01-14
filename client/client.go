@@ -13,8 +13,10 @@ import (
 	"google.golang.org/grpc/naming"
 	"openWebSF/balancer/random"
 	"openWebSF/interceptor/pass_metadata"
+	client_timeout "openWebSF/interceptor/timeout"
 	"openWebSF/config"
 	"github.com/grpc-ecosystem/go-grpc-middleware"
+	"openWebSF/interceptor/monitor"
 )
 
 type Balancer uint8
@@ -32,6 +34,11 @@ const (
 	WRandomExperimental
 )
 
+const (
+	DefaultReqTimeout = 6000
+	DefaultMonitorThreshold = 10
+)
+
 type ClientConfig struct {
 	Service      string            // 服务名， 不为空的时候通过服务名发现服务
 	Registry     string            // zk或其它注册中心地址，使用直连方式时此字段为空
@@ -41,6 +48,8 @@ type ClientConfig struct {
 	dialOpts     []grpc.DialOption
 	StreamInt    grpc.StreamClientInterceptor // 设置interceptor
 	UnaryInt     grpc.UnaryClientInterceptor
+	ReqTimeout       int               // 请求超时，单位 ms，默认 6000 ms
+	MonitorThreshold int // 打印 monitor 日志的阈值，单位 ms，默认 10 ms
 }
 
 var register = struct {
@@ -121,6 +130,8 @@ func NewClient(conf ClientConfig) *grpc.ClientConn {
 	}
 
 	conf.passTraceId()
+	conf.setReqTimeout()
+	conf.setMonitorLog()
 
 	// after all interceptor is set, then use this function
 	conf.addInterceptorBeforeDial()
@@ -145,6 +156,25 @@ func NewClient(conf ClientConfig) *grpc.ClientConn {
 		}
 	}
 	return conn
+}
+
+// set request timeout, default value is 6000ms
+func (c *ClientConfig) setReqTimeout() {
+	timeout := DefaultReqTimeout * time.Millisecond
+	if c.ReqTimeout > 0 {
+		timeout = time.Duration(c.ReqTimeout) * time.Millisecond
+	}
+	c.AddUnaryInterceptor(client_timeout.UnaryTimeOut(timeout))
+}
+
+func (c *ClientConfig) setMonitorLog() {
+	monitorThreshold := DefaultMonitorThreshold * time.Millisecond
+	if c.MonitorThreshold > 0 {
+		monitorThreshold = time.Duration(c.MonitorThreshold) * time.Millisecond
+	}
+	c.AddUnaryInterceptor(monitor.UnaryMonitorLog(monitorThreshold))
+	c.AddStreamInterceptor(monitor.StreamMonitorLog(monitorThreshold))
+	c.AddStreamInterceptor()
 }
 
 // pass traceId

@@ -187,8 +187,8 @@ func (s *server) Shutdown() {
 					if n > 1 {
 						time.Sleep(time.Second * 3)
 					}
-					if err = s.register.UnRegisterService(service.Name, s.port); err != nil {
-						logrus.Warnf("unregister service[%s] failed(%d), error: %s", service.Name, n, err)
+					if err = s.register.UnRegisterService(conf.Name, s.port); err != nil {
+						logrus.Warnf("unregister service[%s] failed(%d), error: %s\n", conf.Name, n, err)
 					} else {
 						break
 					}

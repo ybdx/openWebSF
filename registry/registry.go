@@ -78,7 +78,7 @@ func (r *Registry) unregister(key string) error {
 		}
 		return err
 	}
-	logrus.Infof("unregister key[%s] succeed from to registry center")
+	logrus.Infof("unregister key[%s] succeed from to registry center", key)
 	return nil
 }
 

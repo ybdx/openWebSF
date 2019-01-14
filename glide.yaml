@@ -6,7 +6,7 @@ import:
   - store
   - store/zookeeper
 - package: github.com/golang/protobuf
-  version: v1.0.0
+  version: v1.2.0
   subpackages:
   - proto
 - package: github.com/grpc-ecosystem/go-grpc-middleware
