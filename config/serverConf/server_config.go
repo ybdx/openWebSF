@@ -38,6 +38,33 @@ func GetConfFromFile() (conf ConfType) {
 	return parseFile(file)
 }
 
+func ParseCustom(conf interface{}) {
+	file := ""
+
+	for i := range os.Args {
+		if os.Args[i] == "-c" && len(os.Args) > i+1 {
+			file = os.Args[i+1]
+			break
+		}
+	}
+	if "" == file {
+		logrus.Infoln("not specify config file")
+		return
+	}
+
+	content, err := ioutil.ReadFile(file)
+	if err != nil {
+		logrus.Fatalf("read config file %s failed, error: %v", file, err)
+	} else {
+		logrus.Infof("read config file %s success", file)
+	}
+
+	if err := yaml.Unmarshal(content, &conf); err != nil {
+		logrus.Fatalf("parse config file %s failed, error: %v", file, err)
+	}
+	return
+}
+
 func parseFile(file string) (conf ConfType) {
 	content, err := ioutil.ReadFile(file)
 	if err != nil {
