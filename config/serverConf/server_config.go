@@ -59,7 +59,7 @@ func ParseCustom(conf interface{}) {
 		logrus.Infof("read config file %s success", file)
 	}
 
-	if err := yaml.Unmarshal(content, &conf); err != nil {
+	if err := yaml.Unmarshal(content, conf); err != nil {
 		logrus.Fatalf("parse config file %s failed, error: %v", file, err)
 	}
 	return
